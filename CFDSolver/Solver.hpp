@@ -37,7 +37,91 @@ public:
 
     void ComputeDiffusiveTerms()
     {
-        /* TO-DO */
+        double coeff = 0.0;
+        double value = 0.0;
+        for (int i = 1; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                if (i != 0)
+                {
+                    // Inline Left: u diff
+                    coeff = fluid.kinematic_viscosity / (dx * dx);
+                    value = u(i - 1, j);
+                    u_coeff(i, j) += coeff;
+                    u_scr(i, j) += coeff * value;
+                }
+
+                if (i != nx - 1)
+                {
+                    // Inline Right: u diff
+                    coeff = fluid.kinematic_viscosity / (dx * dx);
+                    value = u(i + 1, j);
+                    u_coeff(i, j) += coeff;
+                    u_scr(i, j) += coeff * value;
+                }
+
+                if (j != 0)
+                {
+                    // Bottom: u diff
+                    coeff = fluid.kinematic_viscosity / (dy * dy);
+                    value = u(i, j - 1);
+                    u_coeff(i, j) += coeff;
+                    u_scr(i, j) += coeff * value;
+                }
+
+                if (j != ny - 1)
+                {
+                    // Top: u diff
+                    coeff = fluid.kinematic_viscosity / (dy * dy);
+                    value = u(i, j + 1);
+                    u_coeff(i, j) += coeff;
+                    u_scr(i, j) += coeff * value;
+                }
+            }
+        }
+
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 1; j < ny; ++j)
+            {
+                if (j != 1)
+                {
+                    // Inline Left: v diff
+                    coeff = fluid.kinematic_viscosity / (dy * dy);
+                    value = v(i, j - 1);
+                    v_coeff(i, j) += coeff;
+                    v_scr(i, j) += coeff * value;
+                }
+
+                if (j != ny - 1)
+                {
+                    // Inline Right: v diff
+                    coeff = fluid.kinematic_viscosity / (dy * dy);
+                    value = v(i, j + 1);
+                    v_coeff(i, j) += coeff;
+                    v_scr(i, j) += coeff * value;
+                }
+
+                if (i != 0)
+                {
+                    // Bottom: v diff
+                    coeff = fluid.kinematic_viscosity / (dx * dx);
+                    value = v(i - 1, j);
+                    v_coeff(i, j) += coeff;
+                    v_scr(i, j) += coeff * value;
+                }
+
+                if (i != nx - 1)
+                {
+                    // Top: v diff
+                    coeff = fluid.kinematic_viscosity / (dx * dx);
+                    value = v(i + 1, j);
+                    v_coeff(i, j) += coeff;
+                    v_scr(i, j) += coeff * value;
+                }
+            }
+        }
     }
 
     void ComputeConvectiveFluxesAndDiffusiveTermsForTemperature()
@@ -71,7 +155,20 @@ public:
 
     void SolveVelocitiesForMomentumEquation()
     {
-        /* TO-DO */
+        for (int i = 1; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                if (u_coeff(i, j) != 0.0) u(i, j) += (u_scr(i, j) - u(i, j) * u_coeff(i, j) + (p(i - 1, j) - p(i, j)) / dx) / (u_coeff(i, j));
+            }
+        }
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 1; j < ny; ++j)
+            {
+                if (v_coeff(i, j) != 0.0) v(i, j) += (v_scr(i, j) - v(i, j) * v_coeff(i, j) + (p(i, j - 1) - p(i, j)) / dy) / (v_coeff(i, j));
+            }
+        }
     }
 
     void SolveTemperatures()
