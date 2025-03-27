@@ -32,7 +32,165 @@ public:
 
     void ComputeConvectiveTerms()
     {
-        /* TO-DO */
+        double flux = 0.0;
+        double value = 0.0;
+        double coeff = 0.0;
+
+        for (int i = 1; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                if (i != 1)
+                {
+                    // Inline Left: u flux
+                    flux = dy * ((u(i, j) + u(i - 1, j)) / 2.0);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? u(i - 1, j) : u(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        u_coeff(i, j) += coeff;
+                        u_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (i != nx - 1 && i != nx - 2)
+                {
+                    // Inline Right: u flux
+                    flux = dy * -((u(i, j) + u(i + 1, j)) / 2.0);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? u(i + 1, j) : u(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        u_coeff(i, j) += coeff;
+                        u_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (j != 0)
+                {
+                    // Bottom Left: u flux
+                    flux = (dx / 2.0) * v(i - 1, j);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? u(i, j - 1) : u(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        u_coeff(i, j) += coeff;
+                        u_scr(i, j) += coeff * value;
+                    }
+
+                    // Bottom Right: u flux
+                    flux = (dx / 2.0) * v(i, j);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? u(i, j - 1) : u(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        u_coeff(i, j) += coeff;
+                        u_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (j != ny - 1)
+                {
+                    // Top Left: u flux
+                    flux = -(dx / 2.0) * v(i - 1, j + 1);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? u(i, j + 1) : u(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        u_coeff(i, j) += coeff;
+                        u_scr(i, j) += coeff * value;
+                    }
+
+                    // Top Right: u flux
+                    flux = -(dx / 2.0) * v(i, j + 1);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? u(i, j + 1) : u(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        u_coeff(i, j) += coeff;
+                        u_scr(i, j) += coeff * value;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 1; j < ny; ++j)
+            {
+                if (j != 1)
+                {
+                    // Inline Left: v flux
+                    flux = dy * ((v(i, j) + v(i, j - 1)) / 2.0);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? v(i, j - 1) : v(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        v_coeff(i, j) += coeff;
+                        v_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (j != ny - 1)
+                {
+                    // Inline Right: v flux
+                    flux = dy * -((v(i, j) + v(i, j + 1)) / 2.0);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? v(i, j + 1) : v(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        v_coeff(i, j) += coeff;
+                        v_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (i != 0)
+                {
+                    // Bottom Left: v flux
+                    flux = (dy / 2.0) * u(i, j - 1);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? v(i - 1, j) : v(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        v_coeff(i, j) += coeff;
+                        v_scr(i, j) += coeff * value;
+                    }
+
+                    // Bottom Right: v flux
+                    flux = (dy / 2.0) * u(i, j);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? v(i - 1, j) : v(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        v_coeff(i, j) += coeff;
+                        v_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (i != nx - 1)
+                {
+                    // Top Left: v flux
+                    flux = -(dy / 2.0) * u(i + 1, j - 1);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? v(i + 1, j) : v(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        v_coeff(i, j) += coeff;
+                        v_scr(i, j) += coeff * value;
+                    }
+
+                    // Top Right: v flux
+                    flux = -(dy / 2.0) * u(i + 1, j);
+                    if (flux > 0.0)
+                    {
+                        value = flux >= 0.0 ? v(i + 1, j) : v(i, j);
+                        coeff = fluid.density * flux / (dx * dy);
+                        v_coeff(i, j) += coeff;
+                        v_scr(i, j) += coeff * value;
+                    }
+                }
+            }
+        }
     }
 
     void ComputeDiffusiveTerms()
