@@ -46,20 +46,20 @@ public:
                     flux = dy * ((u(i, j) + u(i - 1, j)) / 2.0);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? u(i - 1, j) : u(i, j);
+                        value = u(i - 1, j);
                         coeff = fluid.density * flux / (dx * dy);
                         u_coeff(i, j) += coeff;
                         u_scr(i, j) += coeff * value;
                     }
                 }
 
-                if (i != nx - 1 && i != nx - 2)
+                if (i != nx - 1)
                 {
                     // Inline Right: u flux
                     flux = dy * -((u(i, j) + u(i + 1, j)) / 2.0);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? u(i + 1, j) : u(i, j);
+                        value = u(i + 1, j);
                         coeff = fluid.density * flux / (dx * dy);
                         u_coeff(i, j) += coeff;
                         u_scr(i, j) += coeff * value;
@@ -72,7 +72,7 @@ public:
                     flux = (dx / 2.0) * v(i - 1, j);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? u(i, j - 1) : u(i, j);
+                        value = u(i, j - 1);
                         coeff = fluid.density * flux / (dx * dy);
                         u_coeff(i, j) += coeff;
                         u_scr(i, j) += coeff * value;
@@ -82,7 +82,7 @@ public:
                     flux = (dx / 2.0) * v(i, j);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? u(i, j - 1) : u(i, j);
+                        value = u(i, j - 1);
                         coeff = fluid.density * flux / (dx * dy);
                         u_coeff(i, j) += coeff;
                         u_scr(i, j) += coeff * value;
@@ -95,7 +95,7 @@ public:
                     flux = -(dx / 2.0) * v(i - 1, j + 1);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? u(i, j + 1) : u(i, j);
+                        value = u(i, j + 1);
                         coeff = fluid.density * flux / (dx * dy);
                         u_coeff(i, j) += coeff;
                         u_scr(i, j) += coeff * value;
@@ -105,7 +105,7 @@ public:
                     flux = -(dx / 2.0) * v(i, j + 1);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? u(i, j + 1) : u(i, j);
+                        value = u(i, j + 1);
                         coeff = fluid.density * flux / (dx * dy);
                         u_coeff(i, j) += coeff;
                         u_scr(i, j) += coeff * value;
@@ -121,10 +121,10 @@ public:
                 if (j != 1)
                 {
                     // Inline Left: v flux
-                    flux = dy * ((v(i, j) + v(i, j - 1)) / 2.0);
+                    flux = dx * ((v(i, j) + v(i, j - 1)) / 2.0);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? v(i, j - 1) : v(i, j);
+                        value = v(i, j - 1);
                         coeff = fluid.density * flux / (dx * dy);
                         v_coeff(i, j) += coeff;
                         v_scr(i, j) += coeff * value;
@@ -134,10 +134,10 @@ public:
                 if (j != ny - 1)
                 {
                     // Inline Right: v flux
-                    flux = dy * -((v(i, j) + v(i, j + 1)) / 2.0);
+                    flux = dx * -((v(i, j) + v(i, j + 1)) / 2.0);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? v(i, j + 1) : v(i, j);
+                        value = v(i, j + 1);
                         coeff = fluid.density * flux / (dx * dy);
                         v_coeff(i, j) += coeff;
                         v_scr(i, j) += coeff * value;
@@ -150,7 +150,7 @@ public:
                     flux = (dy / 2.0) * u(i, j - 1);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? v(i - 1, j) : v(i, j);
+                        value = v(i - 1, j);
                         coeff = fluid.density * flux / (dx * dy);
                         v_coeff(i, j) += coeff;
                         v_scr(i, j) += coeff * value;
@@ -160,7 +160,7 @@ public:
                     flux = (dy / 2.0) * u(i, j);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? v(i - 1, j) : v(i, j);
+                        value = v(i - 1, j);
                         coeff = fluid.density * flux / (dx * dy);
                         v_coeff(i, j) += coeff;
                         v_scr(i, j) += coeff * value;
@@ -173,7 +173,7 @@ public:
                     flux = -(dy / 2.0) * u(i + 1, j - 1);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? v(i + 1, j) : v(i, j);
+                        value = v(i + 1, j);
                         coeff = fluid.density * flux / (dx * dy);
                         v_coeff(i, j) += coeff;
                         v_scr(i, j) += coeff * value;
@@ -183,7 +183,7 @@ public:
                     flux = -(dy / 2.0) * u(i + 1, j);
                     if (flux > 0.0)
                     {
-                        value = flux >= 0.0 ? v(i + 1, j) : v(i, j);
+                        value = v(i + 1, j);
                         coeff = fluid.density * flux / (dx * dy);
                         v_coeff(i, j) += coeff;
                         v_scr(i, j) += coeff * value;
