@@ -55,6 +55,13 @@ public:
 		for (auto& value : values) value = 0.0;
 	}
 
+	friend void swap(Field& a, Field& b) noexcept
+	{
+		std::swap(a.nx, b.nx);
+		std::swap(a.ny, b.ny);
+		std::swap(a.values, b.values);
+	}
+
 private:
 	int nx{ 0 }, ny{ 0 };
 	std::vector<T> values;

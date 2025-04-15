@@ -27,7 +27,15 @@ public:
 
     void ComputeDivergence()
     {
-        /* TO-DO */
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                divergence(i, j) = ((u(i + 1, j) - u(i, j)) * dy +
+                    (v(i, j + 1) - v(i, j)) * dx +
+                    p_scr(i, j));
+            }
+        }
     }
 
     void ComputeConvectiveTerms()
@@ -303,12 +311,69 @@ public:
 
     void SolvePressure()
     {
-        /* TO-DO */
+        for (int itter = 0; itter < innerPressureItterations; ++itter)
+        {
+            std::swap(p_correction_old, p_correction);
+            double max_correction = 0.0;
+            for (int i = 0; i < nx; ++i)
+            {
+                for (int j = 0; j < ny; ++j)
+                {
+                    double pc = 0.0;
+
+                    double Ae = (u_coeff(i, j) != 0.0) ? (dy / dx) / u_coeff(i, j) : 0.0;
+                    double Aw = (u_coeff(i + 1, j) != 0.0) ? (dy / dx) / u_coeff(i + 1, j) : 0.0;
+                    double As = (v_coeff(i, j) != 0.0) ? (dx / dy) / v_coeff(i, j) : 0.0;
+                    double An = (v_coeff(i, j + 1) != 0.0) ? (dx / dy) / v_coeff(i, j + 1) : 0.0;
+
+                    double Ap = Ae + Aw + As + An + p_coef(i, j);
+
+                    if (Ap == 0) { continue; }
+
+                    if (u_face_flags(i, j, Flag::Open))
+                        pc += (Ae / Ap) * p_correction_old(i - 1, j);
+                    if (u_face_flags(i + 1, j, Flag::Open))
+                        pc += (Aw / Ap) * p_correction_old(i + 1, j);
+                    if (v_face_flags(i, j, Flag::Open))
+                        pc += (As / Ap) * p_correction_old(i, j - 1);
+                    if (v_face_flags(i, j + 1, Flag::Open))
+                        pc += (An / Ap) * p_correction_old(i, j + 1);
+
+                    pc -= divergence(i, j) / Ap;
+
+                    p_correction(i, j) = pc;
+                    max_correction = std::max(max_correction, std::abs(pc));
+                }
+            }
+            if (relaxation * max_correction < maxPressureResidual) { break; }
+        }
+
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                p(i, j) += relaxation * p_correction(i, j);
+            }
+        }
     }
 
     void ApplyPressureCorrectionToVelocity()
     {
-        /* TO-DO */
+        for (int i = 1; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                if (u_coeff(i, j) != 0) { u(i, j) += (p_correction(i - 1, j) - p_correction(i, j)) / (dx * u_coeff(i, j)); }
+            }
+        }
+
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 1; j < ny; ++j)
+            {
+                if (v_coeff(i, j) != 0) { v(i, j) += (p_correction(i, j - 1) - p_correction(i, j)) / (dy * v_coeff(i, j)); }
+            }
+        }
     }
 
     void SolveVelocitiesForMomentumEquation()
