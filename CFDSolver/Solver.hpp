@@ -536,8 +536,6 @@ public:
 
             SolveVelocitiesForMomentumEquation();
 
-            ApplyPressureBoundaryConditions();
-
             ComputeDivergence();
 
             SolvePressure();
