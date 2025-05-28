@@ -239,5 +239,76 @@ void OpenBoundaryCondition::CorrectBoundaryCellVelocities(Solver& solver)
 ///////////////////////
 void FrictionBoundaryCondition::ApplyFriction(Solver& solver)
 {
-
+    double coeff = 0.5 * solver.fluid.kinematic_viscosity / (solver.dx * solver.dx / 4);
+    for (int i = 0; i < solver.nx + 1; ++i)
+    {
+        for (int j = 0; j < solver.ny; ++j)
+        {
+            if (solver.u_face_flags(i, j, Flag::FrictionFace))
+            {
+                if (i != 0)
+                {
+                    if (solver.v_face_flags(i - 1, j + 1, Flag::Open)) // Top Left
+                    {
+                        solver.v_coeff(i - 1, j + 1) += coeff;
+                        solver.v_scr(i - 1, j + 1) += wall_velocity * coeff;
+                    }
+                    if (solver.v_face_flags(i - 1, j, Flag::Open)) // Bottom Left
+                    {
+                        solver.v_coeff(i - 1, j) += coeff;
+                        solver.v_scr(i - 1, j) += wall_velocity * coeff;
+                    }
+                }
+                if (i != solver.nx)
+                {
+                    if (solver.v_face_flags(i, j + 1, Flag::Open)) // Top Right
+                    {
+                        solver.v_coeff(i, j + 1) += coeff;
+                        solver.v_scr(i, j + 1) += wall_velocity * coeff;
+                    }
+                    if (solver.v_face_flags(i, j, Flag::Open)) // Bottom Right
+                    {
+                        solver.v_coeff(i, j) += coeff;
+                        solver.v_scr(i, j) += wall_velocity * coeff;
+                    }
+                }
+            }
+        }
+    }
+    coeff = 0.5 * solver.fluid.kinematic_viscosity / (solver.dy * solver.dy / 4);
+    for (int i = 0; i < solver.nx; ++i)
+    {
+        for (int j = 0; j < solver.ny + 1; ++j)
+        {
+            if (solver.v_face_flags(i, j, Flag::FrictionFace))
+            {
+                if (j != 0)
+                {
+                    if (solver.u_face_flags(i, j - 1, Flag::Open)) // Bottom Left
+                    {
+                        solver.u_coeff(i, j - 1) += coeff;
+                        solver.u_scr(i, j - 1) += wall_velocity * coeff;
+                    }
+                    if (solver.u_face_flags(i + 1, j - 1, Flag::Open)) // Bottom Right
+                    {
+                        solver.u_coeff(i + 1, j - 1) += coeff;
+                        solver.u_scr(i + 1, j - 1) += wall_velocity * coeff;
+                    }
+                }
+                if (j != solver.ny)
+                {
+                    if (solver.u_face_flags(i, j, Flag::Open)) // Top Left
+                    {
+                        solver.u_coeff(i, j) += coeff;
+                        solver.u_scr(i, j) += wall_velocity * coeff;
+                    }
+                    if (solver.u_face_flags(i + 1, j, Flag::Open)) // Top Right
+                    {
+                        solver.u_coeff(i + 1, j) += coeff;
+                        solver.u_scr(i + 1, j) += wall_velocity * coeff;
+                    }
+                }
+            }
+        }
+    }
 }
