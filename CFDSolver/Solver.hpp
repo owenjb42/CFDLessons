@@ -566,12 +566,11 @@ public:
         
         for (auto& boundary : outlet_boundary_conditions)
             boundary.ApplyForVelocity(*this);
-    }
 
-    void ApplyPressureBoundaryConditions()
-    {
         for (auto& boundary : open_boundary_conditions)
-            boundary.ApplyForPressure(*this);
+            boundary.ApplyForVelocity(*this);
+
+        friction_boundary_condition.ApplyFriction(*this);
     }
 
     void ApplyTemperatureBoundaryConditions()
