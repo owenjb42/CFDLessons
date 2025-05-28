@@ -543,8 +543,21 @@ public:
             ApplyPressureCorrectionToVelocity();
 
             // Check Residuals
+            if (iter % 10 == 0)
+            {
+                residual = p_correction / p;
+                maxPressureResidual = relaxation * (std::max(std::abs(*std::max_element(residual.begin(), residual.end())), std::abs(*std::min_element(residual.begin(), residual.end()))));
 
-            /* ADD residual code here */
+                residual = (t - t_previous) / t;
+                maxTemperatureResidual = std::max(std::abs(*std::max_element(residual.begin(), residual.end())), std::abs(*std::min_element(residual.begin(), residual.end())));
+
+                maxDivergence = std::max(std::abs(*std::ranges::min_element(divergence.begin(), divergence.end())), std::abs(*std::ranges::max_element(divergence.begin(), divergence.end())));
+
+                printf("\rIteration: %d | Pressure Residual: %.3e | Max Abs Divergence %.3e | Temperature Residual: %.3e   ", iter, maxPressureResidual, maxDivergence, maxTemperatureResidual);
+
+                if ((maxPressureResidual < residualLimit) && (maxDivergence < residualLimit) && (maxTemperatureResidual < residualLimit) && (iter > 2))
+                    break;
+            }
 
             CalculateCellVelocities();
             interface.SetData(*this);
