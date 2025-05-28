@@ -304,7 +304,85 @@ public:
 
     void ComputeConvectiveFluxesAndDiffusiveTermsForTemperature()
     {
-        /* TO-DO */
+        double value = 0.0;
+        double coeff = 0.0;
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                if (u_face_flags(i, j, Flag::Open))
+                {
+                    value = t(i - 1, j);
+
+                    // Left: Diff
+                    coeff = (fluid.conductivity / fluid.cp) / (dx * dx);
+                    t_coeff(i, j) += coeff;
+                    t_scr(i, j) += coeff * value;
+
+                    // Left: Cnv
+                    coeff = fluid.density * dy * u(i, j) / (dy * dx);
+                    if (coeff > 0.0)
+                    {
+                        t_coeff(i, j) += coeff;
+                        t_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (u_face_flags(i + 1, j, Flag::Open))
+                {
+                    value = t(i + 1, j);
+
+                    // Right: Diff
+                    coeff = (fluid.conductivity / fluid.cp) / (dx * dx);
+                    t_coeff(i, j) += coeff;
+                    t_scr(i, j) += coeff * value;
+
+                    // Right: Cnv
+                    coeff = -fluid.density * dy * u(i + 1, j) / (dy * dx);
+                    if (coeff > 0.0)
+                    {
+                        t_coeff(i, j) += coeff;
+                        t_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (v_face_flags(i, j, Flag::Open))
+                {
+                    value = t(i, j - 1);
+
+                    // Bottom: Diff
+                    coeff = (fluid.conductivity / fluid.cp) / (dy * dy);
+                    t_coeff(i, j) += coeff;
+                    t_scr(i, j) += coeff * value;
+
+                    // Bottom: Cnv
+                    coeff = fluid.density * dy * v(i, j) / (dy * dx);
+                    if (coeff > 0.0)
+                    {
+                        t_coeff(i, j) += coeff;
+                        t_scr(i, j) += coeff * value;
+                    }
+                }
+
+                if (v_face_flags(i, j + 1, Flag::Open))
+                {
+                    value = t(i, j + 1);
+
+                    // Top: Diff
+                    coeff = (fluid.conductivity / fluid.cp) / (dy * dy);
+                    t_coeff(i, j) += coeff;
+                    t_scr(i, j) += coeff * value;
+
+                    // Top: Cnv
+                    coeff = -fluid.density * dy * v(i, j + 1) / (dy * dx);
+                    if (coeff > 0.0)
+                    {
+                        t_coeff(i, j) += coeff;
+                        t_scr(i, j) += coeff * value;
+                    }
+                }
+            }
+        }
     }
 
     void CalculateCellVelocities()
@@ -408,7 +486,13 @@ public:
 
     void SolveTemperatures()
     {
-        /* TO-DO */
+        for (int i = 0; i < nx; ++i)
+        {
+            for (int j = 0; j < ny; ++j)
+            {
+                t(i, j) = t_scr(i, j) / (t_coeff(i, j) + 10e-20);
+            }
+        }
     }
 
     ///////////////////////////////
